@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesquisa – Experimento de Clareza e Foco</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display&display=swap');
+
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --border: #E2DDD4;
+    --text: #2C2924;
+    --text-mid: #6B6560;
+    --text-light: #9B9590;
+    --accent: #1A5F4A;
+    --accent-light: #E8F0ED;
+    --accent-hover: #14503D;
+    --warm: #C4713B;
+    --warm-light: #FEF3EC;
+    --error: #C0392B;
+    --shadow: 0 1px 3px rgba(44,41,36,0.06), 0 4px 12px rgba(44,41,36,0.04);
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 16px 80px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 48px 24px 40px;
+    margin-bottom: 8px;
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin-bottom: 20px;
+  }
+
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .header p.subtitle {
+    font-size: 15px;
+    color: var(--text-mid);
+    font-weight: 400;
+  }
+
+  /* INTRO CARD */
+  .intro-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 28px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .intro-card p {
+    font-size: 14.5px;
+    color: var(--text-mid);
+    margin-bottom: 12px;
+    line-height: 1.7;
+  }
+
+  .intro-card p:last-child { margin-bottom: 0; }
+
+  .intro-card .highlight {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* SECTIONS */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    transition: opacity 0.3s ease;
+  }
+
+  .section.hidden { display: none; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 6px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 24px;
+    line-height: 1.3;
+  }
+
+  /* QUESTIONS */
+  .question {
+    margin-bottom: 28px;
+  }
+
+  .question:last-child { margin-bottom: 0; }
+
+  .question-number {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .question-text {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 14px;
+    line-height: 1.55;
+  }
+
+  .question-hint {
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    font-style: italic;
+  }
+
+  /* RADIO / CHECKBOX */
+  .options { display: flex; flex-direction: column; gap: 8px; }
+
+  .option-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.45;
+  }
+
+  .option-label:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .option-label input[type="radio"],
+  .option-label input[type="checkbox"] {
+    margin-top: 2px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .option-label.selected {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  /* SCALE */
+  .scale-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .scale-labels span {
+    font-size: 11px;
+    color: var(--text-light);
+  }
+
+  .scale-btn {
+    flex: 1;
+    padding: 12px 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+
+  .scale-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .scale-btn.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* TEXTAREA */
+  textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--surface);
+    resize: vertical;
+    transition: border-color 0.15s;
+    line-height: 1.6;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(26,95,74,0.08);
+  }
+
+  textarea::placeholder { color: var(--text-light); }
+
+  /* MULTI-SCALE (matrix) */
+  .matrix-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0ede8;
+  }
+
+  .matrix-row:last-child { border-bottom: none; margin-bottom: 0; }
+
+  .matrix-label {
+    flex: 1;
+    font-size: 13.5px;
+    color: var(--text);
+    min-width: 140px;
+  }
+
+  .matrix-scale {
+    display: flex;
+    gap: 6px;
+  }
+
+  .matrix-scale .scale-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex: none;
+  }
+
+  /* SUBMIT */
+  .submit-area {
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 48px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 2px 8px rgba(26,95,74,0.2);
+  }
+
+  .btn-submit:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  .btn-submit:active { transform: translateY(0); }
+
+  /* ADMIN */
+  .admin-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-top: 32px;
+    box-shadow: var(--shadow);
+  }
+
+  .admin-panel h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .admin-stats {
+    display: flex;
+    gap: 16px;
+    margin: 16px 0 20px;
+    flex-wrap: wrap;
+  }
+
+  .stat-card {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 16px 20px;
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .stat-card .number {
+    font-family: 'DM Serif Display', serif;
+    font-size: 32px;
+    color: var(--accent);
+  }
+
+  .stat-card .label {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 2px;
+  }
+
+  .btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    background: var(--warm);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-export:hover { background: #A85D30; }
+
+  .btn-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: transparent;
+    color: var(--error);
+    border: 1px solid var(--error);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: 12px;
+    transition: all 0.15s;
+  }
+
+  .btn-clear:hover { background: #fdf2f2; }
+
+  /* SUCCESS */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+  }
+
+  .success-screen.visible { display: block; }
+
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--accent-light);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 28px;
+  }
+
+  .success-screen h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  .success-screen p {
+    color: var(--text-mid);
+    font-size: 15px;
+  }
+
+  /* PROGRESS */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+    z-index: 100;
+  }
+
+  /* ADMIN ACCESS */
+  .admin-toggle {
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  .admin-toggle button {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 8px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .admin-toggle button:hover { color: var(--text-mid); }
+
+  .password-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .password-modal.visible { display: flex; }
+
+  .password-box {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 32px;
+    max-width: 360px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+
+  .password-box h3 {
+    font-family: 'DM Serif Display', serif;
+    margin-bottom: 12px;
+    font-size: 18px;
+  }
+
+  .password-box input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .password-box input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .password-box .btn-row {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .password-box button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+  }
+
+  .password-box .btn-cancel { background: var(--bg); color: var(--text-mid); }
+  .password-box .btn-enter { background: var(--accent); color: #fff; }
+
+  .error-msg { color: var(--error); font-size: 13px; display: none; margin-bottom: 8px; }
+
+  /* INPUT NAME */
+  input[type="text"] {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    transition: border-color 0.15s;
+  }
+
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(26,95,74,0.08);
+  }
+
+  /* REQUIRED INDICATOR */
+  .required { color: var(--error); }
+
+  /* VALIDATION */
+  .question.invalid .question-text { color: var(--error); }
+  .question.invalid .scale-btn { border-color: #f0c0bc; }
+  .question.invalid .option-label { border-color: #f0c0bc; }
+  .question.invalid textarea { border-color: var(--error); }
+
+  @media (max-width: 600px) {
+    .container { padding: 16px 12px 60px; }
+    .section { padding: 20px 16px; }
+    .header h1 { font-size: 24px; }
+    .matrix-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+    .admin-stats { flex-direction: column; }
+    .btn-clear { margin-left: 0; margin-top: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="container">
+  <!-- FORM VIEW -->
+  <div id="formView">
+    <div class="header">
+      <div class="header-badge">Fundacred</div>
+      <h1>Experimento de Clareza e Foco</h1>
+      <p class="subtitle">Arquitetura de Blocos de Tempo</p>
+    </div>
+
+    <div class="intro-card">
+      <p>Nas últimas semanas, experimentamos a prática dos <span class="highlight">blocos de tempo: Construção, Manutenção e Recuperação</span>.</p>
+      <p>Esta pesquisa não é uma avaliação individual. É uma forma de entendermos o que essa prática revelou, o que mudou na forma de trabalhar e o que dificultou sua aplicação.</p>
+      <p><strong>Mesmo que você não tenha conseguido aplicar, sua resposta é essencial.</strong></p>
+    </div>
+
+    <!-- IDENTIFICAÇÃO -->
+    <div class="section">
+      <div class="section-label">Identificação</div>
+      <div class="question" data-id="q0" data-type="text" data-required="true">
+        <div class="question-text">Seu nome <span class="required">*</span></div>
+        <input type="text" id="q0_input" placeholder="Digite seu nome completo">
+      </div>
+    </div>
+
+    <!-- SEÇÃO 1 -->
+    <div class="section">
+      <div class="section-label">Seção 1</div>
+      <div class="section-title">Contexto de Uso</div>
+
+      <div class="question" data-id="q1" data-type="radio" data-required="true">
+        <div class="question-number">Pergunta 1</div>
+        <div class="question-text">Ao longo deste período, como foi seu nível de aplicação da metodologia? <span class="required">*</span></div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q1" value="Não utilizei"> Não utilizei</label>
+          <label class="option-label"><input type="radio" name="q1" value="Tive contato, mas usei pouco"> Tive contato, mas usei pouco</label>
+          <label class="option-label"><input type="radio" name="q1" value="Usei de forma moderada"> Usei de forma moderada</label>
+          <label class="option-label"><input type="radio" name="q1" value="Usei com consistência"> Usei com consistência</label>
+          <label class="option-label"><input type="radio" name="q1" value="Usei de forma intensa e consciente"> Usei de forma intensa e consciente</label>
+        </div>
+      </div>
+
+      <div class="question" data-id="q2" data-type="scale" data-required="true">
+        <div class="question-number">Pergunta 2</div>
+        <div class="question-text">Independentemente do uso, você conseguiu compreender a lógica dos blocos (Construção, Manutenção e Recuperação)? <span class="required">*</span></div>
+        <div class="scale-labels"><span>1 = não entendi</span><span>5 = entendi claramente</span></div>
+        <div class="scale-row" data-name="q2">
+          <button class="scale-btn" data-val="1">1</button>
+          <button class="scale-btn" data-val="2">2</button>
+          <button class="scale-btn" data-val="3">3</button>
+          <button class="scale-btn" data-val="4">4</button>
+          <button class="scale-btn" data-val="5">5</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 2 -->
+    <div class="section">
+      <div class="section-label">Seção 2</div>
+      <div class="section-title">Consciência Gerada</div>
+
+      <div class="question" data-id="q3" data-type="scale" data-required="true">
+        <div class="question-number">Pergunta 3</div>
+        <div class="question-text">A prática (ou mesmo o contato com o conceito) te ajudou a perceber melhor como você usa seu tempo? <span class="required">*</span></div>
+        <div class="scale-labels"><span>1 = nenhum efeito</span><span>5 = efeito significativo</span></div>
+        <div class="scale-row" data-name="q3">
+          <button class="scale-btn" data-val="1">1</button>
+          <button class="scale-btn" data-val="2">2</button>
+          <button class="scale-btn" data-val="3">3</button>
+          <button class="scale-btn" data-val="4">4</button>
+          <button class="scale-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="question" data-id="q4" data-type="scale" data-required="true">
+        <div class="question-number">Pergunta 4</div>
+        <div class="question-text">Você passou a perceber com mais clareza a diferença entre trabalhar para manter (manutenção) e trabalhar para evoluir (construção)? <span class="required">*</span></div>
+        <div class="scale-labels"><span>1 = nenhuma diferença</span><span>5 = diferença muito clara</span></div>
+        <div class="scale-row" data-name="q4">
+          <button class="scale-btn" data-val="1">1</button>
+          <button class="scale-btn" data-val="2">2</button>
+          <button class="scale-btn" data-val="3">3</button>
+          <button class="scale-btn" data-val="4">4</button>
+          <button class="scale-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="question" data-id="q5" data-type="scale" data-required="true">
+        <div class="question-number">Pergunta 5</div>
+        <div class="question-text">Você percebeu momentos em que estava ocupado, mas não avançando de fato? <span class="required">*</span></div>
+        <div class="scale-labels"><span>1 = não percebi</span><span>5 = percebi claramente</span></div>
+        <div class="scale-row" data-name="q5">
+          <button class="scale-btn" data-val="1">1</button>
+          <button class="scale-btn" data-val="2">2</button>
+          <button class="scale-btn" data-val="3">3</button>
+          <button class="scale-btn" data-val="4">4</button>
+          <button class="scale-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="question" data-id="q6" data-type="scale" data-required="true">
+        <div class="question-number">Pergunta 6</div>
+        <div class="question-text">A ideia dos blocos te ajudou a refletir sobre o que realmente importa na sua semana? <span class="required">*</span></div>
+        <div class="scale-labels"><span>1 = não ajudou</span><span>5 = ajudou muito</span></div>
+        <div class="scale-row" data-name="q6">
+          <button class="scale-btn" data-val="1">1</button>
+          <button class="scale-btn" data-val="2">2</button>
+          <button class="scale-btn" data-val="3">3</button>
+          <button class="scale-btn" data-val="4">4</button>
+          <button class="scale-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="question" data-id="q7" data-type="scale" data-required="true">
+        <div class="question-number">Pergunta 7</div>
+        <div class="question-text">Você passou a notar mais claramente quando estava disperso, interrompido ou reagindo em vez de escolhendo? <span class="required">*</span></div>
+        <div class="scale-labels"><span>1 = não notei</span><span>5 = notei com clareza</span></div>
+        <div class="scale-row" data-name="q7">
+          <button class="scale-btn" data-val="1">1</button>
+          <button class="scale-btn" data-val="2">2</button>
+          <button class="scale-btn" data-val="3">3</button>
+          <button class="scale-btn" data-val="4">4</button>
+          <button class="scale-btn" data-val="5">5</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 3 (condicional: quem usou) -->
+    <div class="section hidden" id="section3">
+      <div class="section-label">Seção 3</div>
+      <div class="section-title">Experiência de Quem Utilizou</div>
+
+      <div class="question" data-id="q8" data-type="scale">
+        <div class="question-number">Pergunta 8</div>
+        <div class="question-text">Em que medida você conseguiu, na prática, diferenciar seus blocos de tempo?</div>
+        <div class="scale-labels"><span>1 = não consegui</span><span>5 = diferenciei bem</span></div>
+        <div class="scale-row" data-name="q8">
+          <button class="scale-btn" data-val="1">1</button>
+          <button class="scale-btn" data-val="2">2</button>
+          <button class="scale-btn" data-val="3">3</button>
+          <button class="scale-btn" data-val="4">4</button>
+          <button class="scale-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="question" data-id="q9" data-type="radio">
+        <div class="question-number">Pergunta 9</div>
+        <div class="question-text">Você conseguiu realizar blocos de Construção com foco protegido (escudo de tempo)?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q9" value="Não consegui"> Não consegui</label>
+          <label class="option-label"><input type="radio" name="q9" value="Consegui raramente"> Consegui raramente</label>
+          <label class="option-label"><input type="radio" name="q9" value="Consegui algumas vezes"> Consegui algumas vezes</label>
+          <label class="option-label"><input type="radio" name="q9" value="Consegui com frequência"> Consegui com frequência</label>
+        </div>
+      </div>
+
+      <div class="question" data-id="q10" data-type="scale">
+        <div class="question-number">Pergunta 10</div>
+        <div class="question-text">Quando conseguiu proteger um bloco de construção, como foi a qualidade desse tempo?</div>
+        <div class="scale-labels"><span>1 = muito fragmentado</span><span>5 = profundamente focado</span></div>
+        <div class="scale-row" data-name="q10">
+          <button class="scale-btn" data-val="1">1</button>
+          <button class="scale-btn" data-val="2">2</button>
+          <button class="scale-btn" data-val="3">3</button>
+          <button class="scale-btn" data-val="4">4</button>
+          <button class="scale-btn" data-val="5">5</button>
+        </div>
+      </div>
+
+      <div class="question" data-id="q11" data-type="radio">
+        <div class="question-number">Pergunta 11</div>
+        <div class="question-text">Comparado ao seu padrão anterior, como você avalia sua semana?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q11" value="Mais confusa"> Mais confusa</label>
+          <label class="option-label"><input type="radio" name="q11" value="Igual"> Igual</label>
+          <label class="option-label"><input type="radio" name="q11" value="Mais organizada"> Mais organizada</label>
+          <label class="option-label"><input type="radio" name="q11" value="Muito mais clara"> Muito mais clara</label>
+        </div>
+      </div>
+
+      <div class="question" data-id="q12" data-type="checkbox">
+        <div class="question-number">Pergunta 12</div>
+        <div class="question-text">Você percebeu redução em algum desses pontos?</div>
+        <div class="options">
+          <label class="option-label"><input type="checkbox" name="q12" value="Retrabalho"> Retrabalho</label>
+          <label class="option-label"><input type="checkbox" name="q12" value="Confusão sobre prioridades"> Confusão sobre prioridades</label>
+          <label class="option-label"><input type="checkbox" name="q12" value="Ansiedade por excesso de coisas"> Ansiedade por excesso de coisas</label>
+          <label class="option-label"><input type="checkbox" name="q12" value="Interrupções desnecessárias"> Interrupções desnecessárias</label>
+          <label class="option-label"><input type="checkbox" name="q12" value="Nenhuma redução percebida"> Nenhuma redução percebida</label>
+        </div>
+      </div>
+
+      <div class="question" data-id="q13" data-type="radio">
+        <div class="question-number">Pergunta 13</div>
+        <div class="question-text">Você percebeu avanço mais eficiente em algum projeto ou atividade?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q13" value="Sim"> Sim</label>
+          <label class="option-label"><input type="radio" name="q13" value="Não"> Não</label>
+          <label class="option-label"><input type="radio" name="q13" value="Não sei dizer"> Não sei dizer</label>
+        </div>
+      </div>
+
+      <div class="question" data-id="q14" data-type="textarea" id="q14_wrap" style="display:none;">
+        <div class="question-number">Pergunta 14</div>
+        <div class="question-text">Qual foi o avanço? O que mudou?</div>
+        <textarea id="q14_input" placeholder="Descreva o que percebeu..."></textarea>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 4 (condicional: quem não usou) -->
+    <div class="section hidden" id="section4">
+      <div class="section-label">Seção 4</div>
+      <div class="section-title">Experiência de Quem Não Utilizou</div>
+
+      <div class="question" data-id="q15" data-type="radio">
+        <div class="question-number">Pergunta 15</div>
+        <div class="question-text">Mesmo sem aplicar, você teve algum tipo de insight ao entrar em contato com a ideia?</div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q15" value="Sim"> Sim</label>
+          <label class="option-label"><input type="radio" name="q15" value="Não"> Não</label>
+          <label class="option-label"><input type="radio" name="q15" value="Muito pouco"> Muito pouco</label>
+        </div>
+      </div>
+
+      <div class="question" data-id="q16" data-type="checkbox">
+        <div class="question-number">Pergunta 16</div>
+        <div class="question-text">O que mais dificultou a aplicação para você?</div>
+        <div class="options">
+          <label class="option-label"><input type="checkbox" name="q16" value="Falta de tempo"> Falta de tempo</label>
+          <label class="option-label"><input type="checkbox" name="q16" value="Muitas interrupções"> Muitas interrupções</label>
+          <label class="option-label"><input type="checkbox" name="q16" value="Prioridades instáveis"> Prioridades instáveis</label>
+          <label class="option-label"><input type="checkbox" name="q16" value="Falta de clareza sobre o trabalho"> Falta de clareza sobre o trabalho</label>
+          <label class="option-label"><input type="checkbox" name="q16" value="Não entendi bem como aplicar"> Não entendi bem como aplicar</label>
+          <label class="option-label"><input type="checkbox" name="q16" value="Não consegui transformar em prática"> Não consegui transformar em prática</label>
+        </div>
+      </div>
+
+      <div class="question" data-id="q17" data-type="textarea">
+        <div class="question-number">Pergunta 17</div>
+        <div class="question-text">O que teria te ajudado a aplicar melhor?</div>
+        <textarea id="q17_input" placeholder="Compartilhe sua percepção..."></textarea>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 5 -->
+    <div class="section">
+      <div class="section-label">Seção 5</div>
+      <div class="section-title">Impacto na Forma de Trabalhar</div>
+
+      <div class="question" data-id="q18" data-type="matrix" data-required="true">
+        <div class="question-number">Pergunta 18</div>
+        <div class="question-text">Após esse período, como você avalia sua relação com: <span class="required">*</span></div>
+
+        <div class="matrix-row">
+          <div class="matrix-label">Clareza de prioridades</div>
+          <div class="matrix-scale" data-name="q18a">
+            <button class="scale-btn" data-val="1">1</button>
+            <button class="scale-btn" data-val="2">2</button>
+            <button class="scale-btn" data-val="3">3</button>
+            <button class="scale-btn" data-val="4">4</button>
+            <button class="scale-btn" data-val="5">5</button>
+          </div>
+        </div>
+
+        <div class="matrix-row">
+          <div class="matrix-label">Qualidade de foco</div>
+          <div class="matrix-scale" data-name="q18b">
+            <button class="scale-btn" data-val="1">1</button>
+            <button class="scale-btn" data-val="2">2</button>
+            <button class="scale-btn" data-val="3">3</button>
+            <button class="scale-btn" data-val="4">4</button>
+            <button class="scale-btn" data-val="5">5</button>
+          </div>
+        </div>
+
+        <div class="matrix-row">
+          <div class="matrix-label">Sensação de progresso real</div>
+          <div class="matrix-scale" data-name="q18c">
+            <button class="scale-btn" data-val="1">1</button>
+            <button class="scale-btn" data-val="2">2</button>
+            <button class="scale-btn" data-val="3">3</button>
+            <button class="scale-btn" data-val="4">4</button>
+            <button class="scale-btn" data-val="5">5</button>
+          </div>
+        </div>
+
+        <div class="matrix-row">
+          <div class="matrix-label">Nível de confusão/ansiedade (1=alto, 5=baixo)</div>
+          <div class="matrix-scale" data-name="q18d">
+            <button class="scale-btn" data-val="1">1</button>
+            <button class="scale-btn" data-val="2">2</button>
+            <button class="scale-btn" data-val="3">3</button>
+            <button class="scale-btn" data-val="4">4</button>
+            <button class="scale-btn" data-val="5">5</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="question" data-id="q19" data-type="radio" data-required="true">
+        <div class="question-number">Pergunta 19</div>
+        <div class="question-text">Você sente que essa metodologia pode ajudar a melhorar a forma como trabalhamos na Fundacred? <span class="required">*</span></div>
+        <div class="options">
+          <label class="option-label"><input type="radio" name="q19" value="Não vejo valor"> Não vejo valor</label>
+          <label class="option-label"><input type="radio" name="q19" value="Vejo pouco valor"> Vejo pouco valor</label>
+          <label class="option-label"><input type="radio" name="q19" value="Vejo algum valor"> Vejo algum valor</label>
+          <label class="option-label"><input type="radio" name="q19" value="Vejo bastante valor"> Vejo bastante valor</label>
+          <label class="option-label"><input type="radio" name="q19" value="Vejo muito valor"> Vejo muito valor</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEÇÃO 6 -->
+    <div class="section">
+      <div class="section-label">Seção 6</div>
+      <div class="section-title">Reflexão Final</div>
+      <p style="font-size:13.5px; color:var(--text-mid); margin-bottom:24px; font-style:italic;">Esta é a parte mais importante da pesquisa.</p>
+
+      <div class="question" data-id="q20" data-type="textarea" data-required="true">
+        <div class="question-number">Pergunta 20</div>
+        <div class="question-text">Qual foi a principal consciência que essa prática te trouxe? <span class="required">*</span></div>
+        <textarea id="q20_input" placeholder="Reflita livremente..."></textarea>
+      </div>
+
+      <div class="question" data-id="q21" data-type="textarea">
+        <div class="question-number">Pergunta 21</div>
+        <div class="question-text">O que mudou (mesmo que pouco) na forma como você pensa seu trabalho?</div>
+        <textarea id="q21_input" placeholder="Descreva mudanças percebidas..."></textarea>
+      </div>
+
+      <div class="question" data-id="q22" data-type="textarea">
+        <div class="question-number">Pergunta 22</div>
+        <div class="question-text">O que precisa mudar no nosso ambiente (e não nas pessoas) para que isso funcione melhor?</div>
+        <textarea id="q22_input" placeholder="Pense em processos, rotinas, cultura..."></textarea>
+      </div>
+
+      <div class="question" data-id="q23" data-type="textarea">
+        <div class="question-number">Pergunta 23</div>
+        <div class="question-text">Se você tivesse que resumir em uma frase: "O maior valor dessa metodologia é..."</div>
+        <textarea id="q23_input" placeholder="Complete a frase..." style="min-height:60px;"></textarea>
+      </div>
+    </div>
+
+    <div class="submit-area">
+      <button class="btn-submit" onclick="submitForm()">Enviar Respostas</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS VIEW -->
+  <div class="success-screen" id="successView">
+    <div class="success-icon">&#10003;</div>
+    <h2>Obrigado pela sua contribuição!</h2>
+    <p>Sua resposta foi registrada com sucesso.<br>Ela será parte fundamental do diagnóstico desse experimento.</p>
+  </div>
+
+  <!-- ADMIN TOGGLE -->
+  <div class="admin-toggle">
+    <button onclick="showPasswordModal()">Painel de Respostas</button>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="admin-panel" id="adminPanel" style="display:none;">
+    <h2>Painel de Respostas</h2>
+    <p style="font-size:13px; color:var(--text-light); margin-bottom:12px;">Acesso restrito ao administrador da pesquisa.</p>
+
+    <div class="admin-stats" id="adminStats"></div>
+
+    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+      <button class="btn-export" onclick="exportToExcel()">Exportar para Excel (.xlsx)</button>
+      <button class="btn-clear" onclick="clearAllData()">Limpar Dados</button>
+    </div>
+    <div id="responsesList" style="margin-top:20px;"></div>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div class="password-modal" id="passwordModal">
+  <div class="password-box">
+    <h3>Acesso ao Painel</h3>
+    <p style="font-size:13px; color:var(--text-mid); margin-bottom:12px;">Digite a senha de administrador.</p>
+    <div class="error-msg" id="pwError">Senha incorreta.</div>
+    <input type="password" id="pwInput" placeholder="Senha" onkeypress="if(event.key==='Enter')checkPassword()">
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="hidePasswordModal()">Cancelar</button>
+      <button class="btn-enter" onclick="checkPassword()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ADMIN_PASSWORD = 'fundacred2026';
+const STORAGE_KEY = 'survey-responses';
+let responses = [];
+let answers = {};
+
+// -- INIT --
+async function init() {
+  loadFromStorage();
+  setupConditionalLogic();
+  setupScaleButtons();
+  setupOptionHighlight();
+  updateProgress();
+}
+
+async function loadFromStorage() {
+  try {
+    if (window.storage) {
+      const result = await window.storage.get(STORAGE_KEY);
+      if (result && result.value) {
+        responses = JSON.parse(result.value);
+      }
+    }
+  } catch (e) {
+    // fallback: check localStorage
+    try {
+      const ls = localStorage.getItem(STORAGE_KEY);
+      if (ls) responses = JSON.parse(ls);
+    } catch (_) {}
+  }
+}
+
+async function saveToStorage() {
+  try {
+    if (window.storage) {
+      await window.storage.set(STORAGE_KEY, JSON.stringify(responses), true);
+    }
+  } catch (e) {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(responses));
+  } catch (_) {}
+}
+
+// -- CONDITIONAL LOGIC --
+function setupConditionalLogic() {
+  document.querySelectorAll('input[name="q1"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const val = r.value;
+      const usou = val !== 'Não utilizei' && val !== 'Tive contato, mas usei pouco';
+      document.getElementById('section3').classList.toggle('hidden', !usou);
+      document.getElementById('section4').classList.toggle('hidden', usou);
+      updateProgress();
+    });
+  });
+
+  document.querySelectorAll('input[name="q13"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.getElementById('q14_wrap').style.display = r.value === 'Sim' && r.checked ? 'block' : 'none';
+    });
+  });
+}
+
+// -- SCALE BUTTONS --
+function setupScaleButtons() {
+  document.querySelectorAll('.scale-row, .matrix-scale').forEach(row => {
+    row.querySelectorAll('.scale-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        row.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        updateProgress();
+      });
+    });
+  });
+}
+
+// -- OPTION HIGHLIGHT --
+function setupOptionHighlight() {
+  document.querySelectorAll('.option-label input').forEach(inp => {
+    inp.addEventListener('change', () => {
+      if (inp.type === 'radio') {
+        inp.closest('.options').querySelectorAll('.option-label').forEach(l => l.classList.remove('selected'));
+      }
+      if (inp.checked) {
+        inp.closest('.option-label').classList.add('selected');
+      } else {
+        inp.closest('.option-label').classList.remove('selected');
+      }
+      updateProgress();
+    });
+  });
+}
+
+// -- PROGRESS --
+function updateProgress() {
+  const required = document.querySelectorAll('[data-required="true"]');
+  let filled = 0;
+  required.forEach(q => {
+    if (getAnswer(q)) filled++;
+  });
+  const pct = required.length ? (filled / required.length) * 100 : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// -- GET ANSWER --
+function getAnswer(q) {
+  const id = q.dataset.id;
+  const type = q.dataset.type;
+
+  if (type === 'text') {
+    return document.getElementById(id + '_input')?.value.trim() || '';
+  }
+  if (type === 'radio') {
+    const checked = q.querySelector('input[type="radio"]:checked');
+    return checked ? checked.value : '';
+  }
+  if (type === 'scale') {
+    const sel = q.querySelector('.scale-btn.selected');
+    return sel ? sel.dataset.val : '';
+  }
+  if (type === 'checkbox') {
+    const checked = q.querySelectorAll('input[type="checkbox"]:checked');
+    return Array.from(checked).map(c => c.value).join('; ') || '';
+  }
+  if (type === 'textarea') {
+    return document.getElementById(id + '_input')?.value.trim() || '';
+  }
+  if (type === 'matrix') {
+    const scales = q.querySelectorAll('.matrix-scale');
+    let allFilled = true;
+    scales.forEach(s => {
+      if (!s.querySelector('.scale-btn.selected')) allFilled = false;
+    });
+    return allFilled ? 'filled' : '';
+  }
+  return '';
+}
+
+// -- COLLECT ALL --
+function collectAll() {
+  const data = {};
+  const now = new Date().toISOString();
+  data['timestamp'] = now;
+
+  // Name
+  data['nome'] = document.getElementById('q0_input').value.trim();
+
+  // Q1
+  const q1 = document.querySelector('input[name="q1"]:checked');
+  data['q1_nivel_aplicacao'] = q1 ? q1.value : '';
+
+  // Q2
+  const q2 = document.querySelector('[data-name="q2"] .scale-btn.selected');
+  data['q2_compreensao_logica'] = q2 ? q2.dataset.val : '';
+
+  // Q3-Q7
+  for (let i = 3; i <= 7; i++) {
+    const sel = document.querySelector(`[data-name="q${i}"] .scale-btn.selected`);
+    data[`q${i}`] = sel ? sel.dataset.val : '';
+  }
+
+  const labels = {
+    q3: 'percepção_uso_tempo',
+    q4: 'diferença_manutenção_construção',
+    q5: 'ocupado_sem_avançar',
+    q6: 'reflexão_prioridades',
+    q7: 'notar_dispersão'
+  };
+
+  // Q8-Q14 (section 3)
+  const usou = data['q1_nivel_aplicacao'] && data['q1_nivel_aplicacao'] !== 'Não utilizei' && data['q1_nivel_aplicacao'] !== 'Tive contato, mas usei pouco';
+
+  if (usou) {
+    const q8 = document.querySelector('[data-name="q8"] .scale-btn.selected');
+    data['q8_diferenciar_blocos'] = q8 ? q8.dataset.val : '';
+
+    const q9 = document.querySelector('input[name="q9"]:checked');
+    data['q9_foco_protegido'] = q9 ? q9.value : '';
+
+    const q10 = document.querySelector('[data-name="q10"] .scale-btn.selected');
+    data['q10_qualidade_bloco'] = q10 ? q10.dataset.val : '';
+
+    const q11 = document.querySelector('input[name="q11"]:checked');
+    data['q11_avaliacao_semana'] = q11 ? q11.value : '';
+
+    const q12 = Array.from(document.querySelectorAll('input[name="q12"]:checked')).map(c => c.value).join('; ');
+    data['q12_reducoes'] = q12;
+
+    const q13 = document.querySelector('input[name="q13"]:checked');
+    data['q13_avanco_projeto'] = q13 ? q13.value : '';
+
+    data['q14_qual_avanco'] = document.getElementById('q14_input').value.trim();
+  } else {
+    data['q8_diferenciar_blocos'] = '';
+    data['q9_foco_protegido'] = '';
+    data['q10_qualidade_bloco'] = '';
+    data['q11_avaliacao_semana'] = '';
+    data['q12_reducoes'] = '';
+    data['q13_avanco_projeto'] = '';
+    data['q14_qual_avanco'] = '';
+  }
+
+  // Q15-Q17 (section 4)
+  if (!usou) {
+    const q15 = document.querySelector('input[name="q15"]:checked');
+    data['q15_insight_sem_usar'] = q15 ? q15.value : '';
+
+    const q16 = Array.from(document.querySelectorAll('input[name="q16"]:checked')).map(c => c.value).join('; ');
+    data['q16_barreiras'] = q16;
+
+    data['q17_o_que_ajudaria'] = document.getElementById('q17_input').value.trim();
+  } else {
+    data['q15_insight_sem_usar'] = '';
+    data['q16_barreiras'] = '';
+    data['q17_o_que_ajudaria'] = '';
+  }
+
+  // Q18 matrix
+  const q18a = document.querySelector('[data-name="q18a"] .scale-btn.selected');
+  const q18b = document.querySelector('[data-name="q18b"] .scale-btn.selected');
+  const q18c = document.querySelector('[data-name="q18c"] .scale-btn.selected');
+  const q18d = document.querySelector('[data-name="q18d"] .scale-btn.selected');
+  data['q18a_clareza_prioridades'] = q18a ? q18a.dataset.val : '';
+  data['q18b_qualidade_foco'] = q18b ? q18b.dataset.val : '';
+  data['q18c_progresso_real'] = q18c ? q18c.dataset.val : '';
+  data['q18d_confusao_ansiedade'] = q18d ? q18d.dataset.val : '';
+
+  // Q19
+  const q19 = document.querySelector('input[name="q19"]:checked');
+  data['q19_valor_metodologia'] = q19 ? q19.value : '';
+
+  // Q20-Q23
+  data['q20_principal_consciencia'] = document.getElementById('q20_input').value.trim();
+  data['q21_o_que_mudou'] = document.getElementById('q21_input').value.trim();
+  data['q22_mudanca_ambiente'] = document.getElementById('q22_input').value.trim();
+  data['q23_maior_valor'] = document.getElementById('q23_input').value.trim();
+
+  return data;
+}
+
+// -- VALIDATE --
+function validate() {
+  let valid = true;
+  document.querySelectorAll('.question.invalid').forEach(q => q.classList.remove('invalid'));
+
+  document.querySelectorAll('[data-required="true"]').forEach(q => {
+    if (!getAnswer(q)) {
+      q.classList.add('invalid');
+      valid = false;
+    }
+  });
+
+  // Also validate matrix sub-scales
+  const matrixQ = document.querySelector('[data-id="q18"]');
+  if (matrixQ) {
+    const scales = matrixQ.querySelectorAll('.matrix-scale');
+    let allOk = true;
+    scales.forEach(s => {
+      if (!s.querySelector('.scale-btn.selected')) allOk = false;
+    });
+    if (!allOk) {
+      matrixQ.classList.add('invalid');
+      valid = false;
+    }
+  }
+
+  if (!valid) {
+    const first = document.querySelector('.question.invalid');
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  return valid;
+}
+
+// -- SUBMIT --
+async function submitForm() {
+  if (!validate()) return;
+
+  const data = collectAll();
+  responses.push(data);
+  await saveToStorage();
+
+  document.getElementById('formView').style.display = 'none';
+  document.getElementById('successView').classList.add('visible');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// -- ADMIN --
+function showPasswordModal() {
+  document.getElementById('passwordModal').classList.add('visible');
+  document.getElementById('pwInput').focus();
+}
+
+function hidePasswordModal() {
+  document.getElementById('passwordModal').classList.remove('visible');
+  document.getElementById('pwInput').value = '';
+  document.getElementById('pwError').style.display = 'none';
+}
+
+async function checkPassword() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === ADMIN_PASSWORD) {
+    hidePasswordModal();
+    await loadFromStorage();
+    showAdmin();
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+  }
+}
+
+function showAdmin() {
+  const panel = document.getElementById('adminPanel');
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth' });
+
+  const total = responses.length;
+  const usaram = responses.filter(r => r.q1_nivel_aplicacao && r.q1_nivel_aplicacao !== 'Não utilizei' && r.q1_nivel_aplicacao !== 'Tive contato, mas usei pouco').length;
+
+  document.getElementById('adminStats').innerHTML = `
+    <div class="stat-card"><div class="number">${total}</div><div class="label">Respostas</div></div>
+    <div class="stat-card"><div class="number">${usaram}</div><div class="label">Utilizaram</div></div>
+    <div class="stat-card"><div class="number">${total - usaram}</div><div class="label">Não utilizaram</div></div>
+  `;
+
+  let html = '';
+  if (total === 0) {
+    html = '<p style="color:var(--text-light); font-size:14px; margin-top:12px;">Nenhuma resposta registrada ainda.</p>';
+  } else {
+    html = '<div style="margin-top:12px;">';
+    responses.forEach((r, i) => {
+      const date = new Date(r.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+      html += `<div style="padding:10px 0; border-bottom:1px solid var(--border); font-size:13px;">
+        <strong>${r.nome || 'Anônimo'}</strong> — ${date} — ${r.q1_nivel_aplicacao || '-'}
+      </div>`;
+    });
+    html += '</div>';
+  }
+  document.getElementById('responsesList').innerHTML = html;
+}
+
+// -- EXPORT EXCEL --
+function exportToExcel() {
+  if (responses.length === 0) {
+    alert('Nenhuma resposta para exportar.');
+    return;
+  }
+
+  const headers = [
+    'Timestamp', 'Nome',
+    'Q1 - Nível de Aplicação', 'Q2 - Compreensão da Lógica',
+    'Q3 - Percepção Uso Tempo', 'Q4 - Diferença Manutenção vs Construção',
+    'Q5 - Ocupado sem Avançar', 'Q6 - Reflexão Prioridades',
+    'Q7 - Notar Dispersão',
+    'Q8 - Diferenciar Blocos', 'Q9 - Foco Protegido',
+    'Q10 - Qualidade Bloco', 'Q11 - Avaliação Semana',
+    'Q12 - Reduções Percebidas', 'Q13 - Avanço em Projeto',
+    'Q14 - Qual Avanço',
+    'Q15 - Insight sem Usar', 'Q16 - Barreiras',
+    'Q17 - O que Ajudaria',
+    'Q18a - Clareza Prioridades', 'Q18b - Qualidade Foco',
+    'Q18c - Progresso Real', 'Q18d - Confusão/Ansiedade',
+    'Q19 - Valor Metodologia',
+    'Q20 - Principal Consciência', 'Q21 - O que Mudou',
+    'Q22 - Mudança no Ambiente', 'Q23 - Maior Valor'
+  ];
+
+  const keys = [
+    'timestamp', 'nome',
+    'q1_nivel_aplicacao', 'q2_compreensao_logica',
+    'q3', 'q4', 'q5', 'q6', 'q7',
+    'q8_diferenciar_blocos', 'q9_foco_protegido',
+    'q10_qualidade_bloco', 'q11_avaliacao_semana',
+    'q12_reducoes', 'q13_avanco_projeto',
+    'q14_qual_avanco',
+    'q15_insight_sem_usar', 'q16_barreiras',
+    'q17_o_que_ajudaria',
+    'q18a_clareza_prioridades', 'q18b_qualidade_foco',
+    'q18c_progresso_real', 'q18d_confusao_ansiedade',
+    'q19_valor_metodologia',
+    'q20_principal_consciencia', 'q21_o_que_mudou',
+    'q22_mudanca_ambiente', 'q23_maior_valor'
+  ];
+
+  const data = [headers];
+  responses.forEach(r => {
+    data.push(keys.map(k => r[k] || ''));
+  });
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(data);
+
+  // Column widths
+  ws['!cols'] = headers.map((h, i) => {
+    if (i === 0) return { wch: 20 };
+    if (i === 1) return { wch: 25 };
+    if (h.includes('Q20') || h.includes('Q21') || h.includes('Q22') || h.includes('Q14') || h.includes('Q17')) return { wch: 50 };
+    return { wch: 30 };
+  });
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Respostas');
+
+  // Summary sheet
+  const summaryData = buildSummary();
+  const ws2 = XLSX.utils.aoa_to_sheet(summaryData);
+  ws2['!cols'] = [{ wch: 40 }, { wch: 20 }, { wch: 15 }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Resumo');
+
+  XLSX.writeFile(wb, 'pesquisa_blocos_de_tempo_fundacred.xlsx');
+}
+
+function buildSummary() {
+  const total = responses.length;
+  const rows = [
+    ['RESUMO DA PESQUISA - Experimento Blocos de Tempo', '', ''],
+    ['Fundacred', '', ''],
+    ['', '', ''],
+    ['Total de respostas', total, ''],
+    ['', '', ''],
+    ['--- NÍVEL DE APLICAÇÃO ---', '', ''],
+  ];
+
+  const levels = ['Não utilizei', 'Tive contato, mas usei pouco', 'Usei de forma moderada', 'Usei com consistência', 'Usei de forma intensa e consciente'];
+  levels.forEach(l => {
+    const count = responses.filter(r => r.q1_nivel_aplicacao === l).length;
+    rows.push([l, count, total ? Math.round(count/total*100) + '%' : '0%']);
+  });
+
+  rows.push(['', '', '']);
+  rows.push(['--- MÉDIAS DAS ESCALAS (1-5) ---', 'Média', 'N']);
+
+  const scaleFields = [
+    ['Q2 - Compreensão da lógica', 'q2_compreensao_logica'],
+    ['Q3 - Percepção uso tempo', 'q3'],
+    ['Q4 - Manutenção vs Construção', 'q4'],
+    ['Q5 - Ocupado sem avançar', 'q5'],
+    ['Q6 - Reflexão prioridades', 'q6'],
+    ['Q7 - Notar dispersão', 'q7'],
+    ['Q18a - Clareza prioridades', 'q18a_clareza_prioridades'],
+    ['Q18b - Qualidade foco', 'q18b_qualidade_foco'],
+    ['Q18c - Progresso real', 'q18c_progresso_real'],
+    ['Q18d - Confusão/ansiedade (invertida)', 'q18d_confusao_ansiedade'],
+  ];
+
+  scaleFields.forEach(([label, key]) => {
+    const vals = responses.map(r => parseFloat(r[key])).filter(v => !isNaN(v));
+    const avg = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '-';
+    rows.push([label, avg, vals.length]);
+  });
+
+  rows.push(['', '', '']);
+  rows.push(['--- VALOR DA METODOLOGIA ---', '', '']);
+
+  const valorLevels = ['Não vejo valor', 'Vejo pouco valor', 'Vejo algum valor', 'Vejo bastante valor', 'Vejo muito valor'];
+  valorLevels.forEach(l => {
+    const count = responses.filter(r => r.q19_valor_metodologia === l).length;
+    rows.push([l, count, total ? Math.round(count/total*100) + '%' : '0%']);
+  });
+
+  return rows;
+}
+
+async function clearAllData() {
+  if (!confirm('Tem certeza? Isso apagará TODAS as respostas permanentemente.')) return;
+  if (!confirm('Última confirmação: apagar todos os dados?')) return;
+  responses = [];
+  await saveToStorage();
+  showAdmin();
+}
+
+// Init
+init();
+</script>
+</body>
+</html>
